@@ -6,107 +6,168 @@
   <title>Xtreme Crash Predictor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
-    /* Loading Screen Styles */
-    html, body {
+    :root {
+      --primary: #FFC107;
+      --primary-dark: #FFA726;
+      --secondary: #FFD700;
+      --secondary-dark: #DAA520;
+      --bg-dark: #1a0a2e;
+      --card-bg: rgba(30, 15, 60, 0.85);
+      --text-light: #f8f8f8;
+      --text-muted: #b0b0b0;
+    }
+    
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background-color: #000;
-      height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    html, body {
+      height: 100%;
+      background-color: var(--bg-dark);
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
       overflow: hidden;
       touch-action: none;
+      color: var(--text-light);
     }
-
+    
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      background: linear-gradient(135deg, #1a0a2e 0%, #2a0845 100%);
+    }
+    
     .loader-container {
       position: relative;
-      width: 150px;
-      height: 150px;
+      width: 180px;
+      height: 180px;
+      margin-bottom: 30px;
     }
-
+    
+    .progress-ring {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      filter: drop-shadow(0 0 8px rgba(255, 193, 7, 0.6));
+    }
+    
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+    
+    .progress-bg {
+      stroke: rgba(255, 193, 7, 0.1);
+    }
+    
+    .progress-bar {
+      stroke: url(#gradient);
+      stroke-dasharray: 565;
+      stroke-dashoffset: 565;
+      animation: loadRing 3.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    
     .loader-icon {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 3em;
-      color: #FFC107;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       z-index: 2;
+      animation: pulse 1.8s infinite alternate;
+      box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
     }
-
-    .progress-ring {
+    
+    .loader-icon::before {
+      content: "";
+      position: absolute;
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg);
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      animation: shine 3s infinite;
+      z-index: -1;
     }
-
-    .progress-ring circle {
-      fill: none;
-      stroke-width: 6;
-      stroke-linecap: butt;
+    
+    .fa-bolt {
+      color: white;
+      font-size: 40px;
+      transform: rotate(10deg);
     }
-
-    .progress-bg {
-      stroke: #333;
+    
+    .loading-text {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 1s ease 1s forwards;
     }
-
-    .progress-bar {
-      stroke: #FFA726;
-      stroke-dasharray: 439.6;
-      stroke-dashoffset: 439.6;
-      animation: loadRing 4s linear forwards;
+    
+    .loading-subtext {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      opacity: 0;
+      animation: fadeIn 1s ease 1.5s forwards;
     }
-
-    @keyframes loadRing {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-
-    /* Notice Page Styles (initially hidden) */
+    
+    /* Notice Page */
     .notice-page {
-      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: linear-gradient(135deg, #1a0a2e 0%, #2a0845 100%);
-      color: #f8f8f8;
-      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      align-items: center;
+      display: none;
+      flex-direction: column;
       justify-content: center;
-      text-align: center;
-      padding: 15px;
-      box-sizing: border-box;
-      overflow-x: hidden;
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      touch-action: pan-x pan-y;
+      align-items: center;
+      padding: 20px;
+      z-index: 1001;
+      overflow-y: auto;
     }
-
+    
     .notice-container {
-      background: rgba(30, 15, 60, 0.85);
-      border: 2px solid #ffd700;
-      border-radius: 25px;
-      padding: 25px 20px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px;
       width: 100%;
-      max-width: 360px;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
-      backdrop-filter: blur(8px);
-      box-sizing: border-box;
-      opacity: 0;
-      transform: translateY(20px) scale(0.98);
-      animation: fadeInSlide 1s ease-out forwards;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInSlide 1s ease 0.3s forwards;
+      border: 2px solid var(--secondary);
+      backdrop-filter: blur(8px);
     }
-
+    
     .notice-container::before {
       content: "";
       position: absolute;
@@ -115,129 +176,292 @@
       width: 200%;
       height: 200%;
       background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
-      z-index: -1;
+      pointer-events: none;
     }
-
-    @keyframes fadeInSlide {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    h1 {
-      color: #ffd700;
+    
+    .notice-header {
+      display: flex;
+      align-items: center;
       margin-bottom: 20px;
-      font-size: 1.5em;
-      font-weight: 600;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .notice-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+    }
+    
+    .icon-alert {
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: var(--primary-dark);
+      font-size: 16px;
+    }
+    
+    .notice-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.3;
       text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-      position: relative;
-      display: inline-block;
     }
-
-    h1::after {
-      content: "";
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #ffd700, transparent);
+    
+    .notice-content {
+      margin-bottom: 20px;
     }
-
-    p {
-      line-height: 1.7;
-      font-size: 0.96em;
-      margin: 15px 0;
-      text-align: center;
+    
+    .notice-item {
+      display: flex;
+      margin-bottom: 15px;
+      align-items: flex-start;
     }
-
+    
+    .item-icon {
+      width: 24px;
+      height: 24px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .icon-info {
+      width: 12px;
+      height: 12px;
+      background-color: white;
+      clip-path: circle(50% at 50% 50%);
+    }
+    
+    .item-text {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--text-light);
+    }
+    
     .button {
-      margin-top: 25px;
-      padding: 12px 25px;
-      background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: white;
       border: none;
       border-radius: 12px;
-      text-decoration: none;
       font-weight: 600;
-      font-size: 1em;
-      box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4);
-      display: inline-block;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4);
+      width: 100%;
       position: relative;
       overflow: hidden;
-      z-index: 1;
-      cursor: pointer;
     }
-
-    .button::before {
+    
+    .button::after {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #daa520 0%, #ffd700 100%);
-      z-index: -1;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0) 60%
+      );
+      transform: rotate(30deg);
+      transition: all 0.3s ease;
       opacity: 0;
-      transition: opacity 0.3s ease;
     }
-
+    
     .button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(218, 165, 32, 0.6);
     }
-
-    .button:hover::before {
+    
+    .button:hover::after {
       opacity: 1;
     }
-
+    
     .button:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
-
-    @media (max-width: 400px) {
-      .notice-container {
-        padding: 20px 15px;
+    
+    .button-icon {
+      margin-left: 8px;
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      clip-path: polygon(0% 50%, 40% 50%, 40% 0%, 100% 50%, 40% 100%, 40% 50%);
+    }
+    
+    /* Animations */
+    @keyframes loadRing {
+      to {
+        stroke-dashoffset: 0;
       }
-      
-      h1 {
-        font-size: 1.3em;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0.8;
       }
-      
-      p {
-        font-size: 0.9em;
+      50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0.8;
+      }
+    }
+    
+    @keyframes shine {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeInSlide {
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-<body>
+<body oncontextmenu="return false">
 
   <!-- Loading Screen -->
-  <div class="loader-container">
-    <svg class="progress-ring" width="150" height="150">
-      <circle class="progress-bg" cx="75" cy="75" r="70"/>
-      <circle class="progress-bar" cx="75" cy="75" r="70"/>
+  <div class="loading-screen">
+    <svg width="0" height="0">
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFC107" />
+          <stop offset="100%" stop-color="#FFA726" />
+        </linearGradient>
+      </defs>
     </svg>
-    <div class="loader-icon"><i class="fas fa-bolt"></i></div>
+    
+    <div class="loader-container">
+      <svg class="progress-ring" width="180" height="180">
+        <circle class="progress-bg" cx="90" cy="90" r="85"/>
+        <circle class="progress-bar" cx="90" cy="90" r="85"/>
+      </svg>
+      <div class="loader-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+    </div>
+    
+    <div class="loading-text">Initializing Predictor</div>
+    <div class="loading-subtext">Loading advanced algorithms...</div>
   </div>
 
-  <!-- Notice Page (hidden initially) -->
+  <!-- Notice Page -->
   <div class="notice-page">
     <div class="notice-container">
-      <h1>📢 පරිශීලක උපදේශනය</h1>
-      <p>Xtreme Predictor වෙතින් ලබාදෙන Crash Game Signal පිළිබඳව පහත කරුණු සැලකිල්ලට ගන්න.</p>
-      <p>Crash ක්‍රීඩාවේ චාර්ට් පද්ධතිය ප්‍රදේශ අනුව වෙනස් විය හැකි බැවින්, එකම signal එකක් භාවිත කරන විවිධ පරිශීලකයින්ට විවිධ ප්‍රතිඵල ලැබිය හැක.</p>
-      <p>මෙම සේවාව ඔබේ ක්‍රීඩාව සඳහා සෘජුවම ගැලපේ යැයි අපි වගකීමක් නොදරන අතර, මෙය උදව් සපයන මාර්ගෝපදේශනයක් ලෙස පමණක් භාවිත කළ යුතුය.</p>
-      <p>කරුණාකර වගකීම්වන්ත ලෙස ක්‍රියා කරන්න.</p>
-      <button id="proceedBtn" class="button">PROCEED TO SIGNAL</button>
+      <div class="notice-header">
+        <div class="notice-icon">
+          <div class="icon-alert">!</div>
+        </div>
+        <h1 class="notice-title">පරිශීලක උපදේශනය</h1>
+      </div>
+      
+      <div class="notice-content">
+        <div class="notice-item">
+          <div class="item-icon">
+            <div class="icon-info"></div>
+          </div>
+          <p class="item-text">Xtreme Predictor වෙතින් ලබාදෙන Crash Game Signal පිළිබඳව පහත කරුණු සැලකිල්ලට ගන්න.</p>
+        </div>
+        
+        <div class="notice-item">
+          <div class="item-icon">
+            <div class="icon-info"></div>
+          </div>
+          <p class="item-text">Crash ක්‍රීඩාවේ චාර්ට් පද්ධතිය ප්‍රදේශ අනුව වෙනස් විය හැකි බැවින්, එකම signal එකක් භාවිත කරන විවිධ පරිශීලකයින්ට විවිධ ප්‍රතිඵල ලැබිය හැක.</p>
+        </div>
+        
+        <div class="notice-item">
+          <div class="item-icon">
+            <div class="icon-info"></div>
+          </div>
+          <p class="item-text">මෙම සේවාව ඔබේ ක්‍රීඩාව සඳහා සෘජුවම ගැලපේ යැයි අපි වගකීමක් නොදරන අතර, මෙය උදව් සපයන මාර්ගෝපදේශනයක් ලෙස පමණක් භාවිත කළ යුතුය.</p>
+        </div>
+        
+        <div class="notice-item">
+          <div class="item-icon">
+            <div class="icon-info"></div>
+          </div>
+          <p class="item-text">කරුණාකර වගකීම්වන්ත ලෙස ක්‍රියා කරන්න.</p>
+        </div>
+      </div>
+      
+      <button id="proceedBtn" class="button">
+        PROCEED TO SIGNAL
+        <div class="button-icon"></div>
+      </button>
     </div>
   </div>
 
   <script>
+    // Disable all text selection
+    document.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Disable copy/paste/cut
+    document.addEventListener('copy', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    document.addEventListener('cut', function(e) {
+      e.preventDefault();
+      return false;
+    });
+    
+    document.addEventListener('paste', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
     // Disable zooming and other unwanted gestures
     document.addEventListener('gesturestart', function(e) {
       e.preventDefault();
@@ -249,23 +473,8 @@
       }
     }, { passive: false });
 
-    // After loading animation completes (4 seconds), show notice page
-    setTimeout(() => {
-      document.querySelector('.loader-container').style.display = 'none';
-      document.querySelector('.notice-page').style.display = 'flex';
-    }, 4000);
-
-    // Handle proceed button click
-    document.getElementById('proceedBtn').addEventListener('click', function() {
-      // Replace current history state so back button won't return here
-      window.history.replaceState(null, null, window.location.href);
-      
-      // Open in same tab with no history reference
-      window.location.replace("https://damindu817.github.io/Xtreme-Crash-Predictor---Melbet/");
-    });
-
-    // Enhanced security measures
-    document.addEventListener('keydown', function (e) {
+    // Disable keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
       // Disable Ctrl+C, Ctrl+X, Ctrl+V, Ctrl+A
       if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'v', 'a'].includes(e.key.toLowerCase())) {
         e.preventDefault();
@@ -292,22 +501,28 @@
       }
     }, { passive: false });
 
-    // Reset zoom level on load and resize
-    function resetZoom() {
-      document.body.style.zoom = "100%";
-    }
-    
-    window.addEventListener('load', resetZoom);
-    window.addEventListener('resize', resetZoom);
-    
+    // After loading animation completes, show notice page
+    setTimeout(() => {
+      document.querySelector('.loading-screen').style.display = 'none';
+      document.querySelector('.notice-page').style.display = 'flex';
+    }, 3500);
+
+    // Handle proceed button click - replace history to prevent back navigation
+    document.getElementById('proceedBtn').addEventListener('click', function() {
+      // Add click animation
+      this.classList.add('clicked');
+      
+      // Replace current history state
+      window.history.replaceState(null, null, window.location.href);
+      
+      // Redirect without adding to history
+      setTimeout(() => {
+        window.location.replace("https://damindu817.github.io/Xtreme-Crash-Predictor---Melbet/");
+      }, 300);
+    });
+
     // Additional protection against right-click menu
     document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      return false;
-    });
-    
-    // Protection against text selection
-    document.addEventListener('selectstart', function(e) {
       e.preventDefault();
       return false;
     });
