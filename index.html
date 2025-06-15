@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Xtreme Crash Predictor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #FFC107;
@@ -50,6 +53,7 @@
       align-items: center;
       z-index: 1000;
       background: linear-gradient(135deg, #1a0a2e 0%, #2a0845 100%);
+      font-family: 'Poppins', 'Segoe UI', sans-serif; /* Ensure font is applied immediately */
     }
     
     .loader-container {
@@ -57,6 +61,7 @@
       width: 180px;
       height: 180px;
       margin-bottom: 30px;
+      will-change: transform; /* Optimize for animation */
     }
     
     .progress-ring {
@@ -70,6 +75,7 @@
       fill: none;
       stroke-width: 8;
       stroke-linecap: round;
+      transform-origin: center;
     }
     
     .progress-bg {
@@ -98,6 +104,7 @@
       z-index: 2;
       animation: pulse 1.8s infinite alternate;
       box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+      will-change: transform, box-shadow; /* Optimize for animation */
     }
     
     .loader-icon::before {
@@ -125,6 +132,8 @@
       text-align: center;
       opacity: 0;
       animation: fadeIn 1s ease 1s forwards;
+      will-change: opacity; /* Optimize for animation */
+      backface-visibility: hidden; /* Prevent rendering artifacts */
     }
     
     .loading-subtext {
@@ -133,6 +142,8 @@
       color: var(--text-muted);
       opacity: 0;
       animation: fadeIn 1s ease 1.5s forwards;
+      will-change: opacity; /* Optimize for animation */
+      backface-visibility: hidden; /* Prevent rendering artifacts */
     }
     
     /* Notice Page */
@@ -150,6 +161,7 @@
       padding: 20px;
       z-index: 1001;
       overflow-y: auto;
+      font-family: 'Poppins', 'Segoe UI', sans-serif; /* Ensure font is applied immediately */
     }
     
     .notice-container {
@@ -166,6 +178,7 @@
       animation: fadeInSlide 1s ease 0.3s forwards;
       border: 2px solid var(--secondary);
       backdrop-filter: blur(8px);
+      will-change: transform, opacity; /* Optimize for animation */
     }
     
     .notice-container::before {
@@ -274,6 +287,7 @@
       width: 100%;
       position: relative;
       overflow: hidden;
+      will-change: transform, box-shadow; /* Optimize for animation */
     }
     
     .button::after {
@@ -314,7 +328,7 @@
       clip-path: polygon(0% 50%, 40% 50%, 40% 0%, 100% 50%, 40% 100%, 40% 50%);
     }
     
-    /* Animations */
+    /* Animations - Improved with will-change and backface-visibility */
     @keyframes loadRing {
       to {
         stroke-dashoffset: 0;
@@ -363,7 +377,6 @@
       }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body oncontextmenu="return false">
 
@@ -501,11 +514,14 @@
       }
     }, { passive: false });
 
-    // After loading animation completes, show notice page
-    setTimeout(() => {
-      document.querySelector('.loading-screen').style.display = 'none';
-      document.querySelector('.notice-page').style.display = 'flex';
-    }, 3500);
+    // Wait for fonts to load before starting animations
+    document.fonts.ready.then(function() {
+      // After loading animation completes, show notice page
+      setTimeout(() => {
+        document.querySelector('.loading-screen').style.display = 'none';
+        document.querySelector('.notice-page').style.display = 'flex';
+      }, 3500);
+    });
 
     // Handle proceed button click - replace history to prevent back navigation
     document.getElementById('proceedBtn').addEventListener('click', function() {
